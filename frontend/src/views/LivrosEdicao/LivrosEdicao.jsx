@@ -5,30 +5,43 @@ import LivrosService from '../../api/LivrosService';
 import logo from '../../assets/logo.png';
 
 const LivrosEdicao = () => {
-  let { livroId } = useParams();
+  const { livroId } = useParams();
   const navigate = useNavigate();
   
-  const [livro, setLivro] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [livro, setLivro] = useState(null); // Corrigido: Inicializado com 'null' para verificar se os dados já foram carregados
+  const [loading, setLoading] = useState(true); // Corrigido: Começa com 'true' para indicar que está carregando
   const [mensagem, setMensagem] = useState(null);
   const [erro, setErro] = useState(null);
 
-  async function getLivro() {
-    try {
-      const data = await LivrosService.obterLivro(livroId);
-      setLivro(data);
-    } catch (error) {
-      setErro('Erro ao carregar livro: ' + error.message);
+  useEffect(() => {
+    // Corrigido: A lógica de buscar o livro é colocada dentro do useEffect
+    async function getLivro() {
+      setLoading(true); // Indica que o carregamento iniciou
+      setErro(null); // Limpa erros anteriores
+      try {
+        const data = await LivrosService.obterLivro(livroId);
+        setLivro(data);
+      } catch (error) {
+        console.error('Erro na requisição:', error);
+        // Corrigido: O status 404 geralmente vem no objeto de resposta do erro
+        setErro(error.response?.status === 404 ? 'Livro não encontrado' : 'Erro ao carregar livro');
+      } finally {
+        setLoading(false); // Indica que o carregamento terminou
+      }
     }
-  }
+
+    if (livroId) {
+      getLivro();
+    }
+  }, [livroId]);
 
   const validarCampos = () => {
     return (
-      livro.titulo !== undefined && livro.titulo.trim() !== '' &&
-      livro.paginas !== undefined && livro.paginas !== '' && 
-      Number.isInteger(Number(livro.paginas)) &&
-      livro.isbn !== undefined && livro.isbn.trim() !== '' &&
-      livro.editora !== undefined && livro.editora.trim() !== ''
+      livro?.titulo?.trim() !== '' &&
+      livro?.paginas !== '' && 
+      Number.isInteger(Number(livro?.paginas)) &&
+      livro?.isbn?.trim() !== '' &&
+      livro?.editora?.trim() !== ''
     );
   };
 
@@ -37,7 +50,7 @@ const LivrosEdicao = () => {
     setErro(null);
 
     if (!validarCampos()) {
-      setErro('Preencha todos os campos corretamente. Número de páginas deve ser um número inteiro.');
+      setErro('Preencha todos os campos corretamente.');
       return;
     }
 
@@ -51,8 +64,7 @@ const LivrosEdicao = () => {
     };
 
     try {
-      
-      const response = await LivrosService.editarLivro(livroId, body);
+      await LivrosService.editarLivro(livroId, body);
       setMensagem('Livro atualizado com sucesso!');
       
       setTimeout(() => {
@@ -66,13 +78,13 @@ const LivrosEdicao = () => {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (livroId) {
-      getLivro();
-    }
-  }, [livroId]);
-
+  
+  // Corrigido: Exibe mensagem de erro ou carregamento
+  if (loading) return <div>Carregando...</div>;
+  if (erro) return <div className="error-message">{erro}</div>;
+  if (!livro) return <div>Livro não encontrado.</div>;
+  
+  // Corrigido: Adicionado return do JSX do formulário, com o botão no 'onSubmit'
   return (
     <>
       {/* Header */}
@@ -94,13 +106,13 @@ const LivrosEdicao = () => {
       <div className='livrosCadastro'>
         <h1>Edição de Livros</h1>
         <div className='form-container'>
-          <form id="formulario">
+          <form id="formulario" onSubmit={(event) => { event.preventDefault(); editLivro(); }}>
             <div className='form-group'>
               <label>Id</label>
               <input
                 type="text"
                 disabled
-                value={livro._id || ''} // Use livro._id,
+                value={livro._id || ''}
                 placeholder="ID do livro"
               />
             </div>
@@ -141,7 +153,7 @@ const LivrosEdicao = () => {
               />
             </div>
             <div className='form-group'>
-              <button type="button" disabled={loading} onClick={() => { editLivro() }}>
+              <button type="submit" disabled={loading}>
                 {loading ? 'ATUALIZANDO...' : 'ATUALIZAR LIVRO'}
               </button>
             </div>

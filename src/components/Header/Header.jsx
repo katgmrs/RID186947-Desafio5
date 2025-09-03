@@ -1,17 +1,22 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "./index.scss";
-
 function Header() {
-  return (
-    <div className='header'>
-        <Link to="/"><img src={logo}/></Link>
-        <ul>
-            <li><Link to="/livros">Livros</Link></li>
-        </ul>        
-    </div>
-  )
+  return (
+    <div className='header'>
+      <NavLink to="/" className="logo-link">
+        <img src={logo} alt="DNC Logo" className="logo" />
+      </NavLink>
+      <nav>
+        <NavLink to="/livros" className={({ isActive }) => isActive ? "ativo" : ""}>
+          Listar livros
+        </NavLink>
+        <NavLink to="/livros/cadastro" className={({ isActive }) => isActive ? "ativo" : ""}>
+          Cadastrar livros
+        </NavLink>
+      </nav>
+    </div>
+  );
 }
-
-export default Header
+export default Header;

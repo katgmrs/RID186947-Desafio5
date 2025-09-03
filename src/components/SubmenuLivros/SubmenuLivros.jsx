@@ -6,8 +6,8 @@ function SubmenuLivros() {
   return (
     <div className='submenu'>        
         <ul>
-            <li><Link to="/livros/cadastro">Cadastrar Livro</Link></li>
-        </ul>        
+  {/* vazio */}
+</ul>       
     </div>
   )
 }

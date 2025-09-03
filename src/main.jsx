@@ -24,7 +24,7 @@ const router = createBrowserRouter([
     element: <LivrosCadastro />,
   },
   {
-    path: "/livros/edicao/:livroId",
+    path: "/livros/editar/:livroId", 
     element: <LivrosEdicao />,
   },
 ]);

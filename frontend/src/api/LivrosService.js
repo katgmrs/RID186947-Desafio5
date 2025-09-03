@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3001/livros";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/livros";
 
 async function listarLivros() {
   const resposta = await fetch(API_BASE);
@@ -13,7 +13,6 @@ async function obterLivro(id) {
 }
 
 async function cadastrarLivro(dadosLivro) {
-
   const dados = { ...dadosLivro, paginas: Number(dadosLivro.paginas) };
 
   const resposta = await fetch(API_BASE, {
@@ -26,7 +25,6 @@ async function cadastrarLivro(dadosLivro) {
 }
 
 async function editarLivro(id, dadosLivro) {
-
   const dados = { ...dadosLivro, paginas: Number(dadosLivro.paginas) };
 
   const resposta = await fetch(`${API_BASE}/${id}`, {
